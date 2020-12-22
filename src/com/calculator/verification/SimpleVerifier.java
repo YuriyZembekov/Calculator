@@ -6,22 +6,22 @@ import java.util.regex.Pattern;
 // Класс проверяет "валидность" введённого выражения
 public class SimpleVerifier implements Verifier {
 
-    // Метод получает строку и массив символов которые могут встречаться в строке
-    // Цифры и пробельные символы допускаются по-умолчанию
+    // Массив символов которые могут встречаться в строке
+    // Цифры допускаются по-умолчанию
+    private final char[] validChars = {'.', '+', '-', '*', '/'};
 
+    // Метод получает строку и проверяет её "валидность
     @Override
-    public boolean isValid(String expression, char[] validChars) {
-        //Перед проверкой входного выражения удаляем из него все пробельные
-        expression = expression.replaceAll("\\s", "");
-        return isContainsOnlyValidSymbol(expression, validChars)
+    public boolean isValid(String expression) {
+        return isContainsOnlyValidSymbol(expression)
                 && isNotContainsDoubleOperator(expression)
-                && isStartsAndEndsWithDigits(expression);
+                && isStartsAndEndsWithDigitsAndContainsOneOperator(expression);
     }
 
     // Метод проверяет наличие некорректных символов во входящей строке
     // Некорректные символы - любые символы, которых нет во входном массиве символов
     // Цифры допускаются по-умолчанию
-    private boolean isContainsOnlyValidSymbol(String expression, char[] validChars){
+    private boolean isContainsOnlyValidSymbol(String expression) {
         String patternString = "[^" + Pattern.quote(String.valueOf(validChars)) + "\\d]";
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(expression);
@@ -30,15 +30,17 @@ public class SimpleVerifier implements Verifier {
 
     // Метод проверяет наличие двух операторов подряд
     // На данный момент 17.12.2020 метод проверяет наличие рядом стоящих двух символов
-    // которые не являются цифрами, для версии калькулятора без скобок это правильно
-    // TODO
-    private boolean isNotContainsDoubleOperator(String expression){
+    // которые не являются цифрами, для версии калькулятора без скобок - это достаточная
+    // проверка на "валидность"
+    private boolean isNotContainsDoubleOperator(String expression) {
         Pattern pattern = Pattern.compile("\\D{2,}");
         Matcher matcher = pattern.matcher(expression);
         return !matcher.find();
     }
 
-    private boolean isStartsAndEndsWithDigits(String expression){
-        return expression.matches("\\d.*\\d");
+    // Метод проверяет наличие цифр по краям выражения и наличие хотябы одного оператора
+    // между ними
+    private boolean isStartsAndEndsWithDigitsAndContainsOneOperator(String expression) {
+        return expression.matches("^\\d+.*[^.\\d].*\\d+$");
     }
 }

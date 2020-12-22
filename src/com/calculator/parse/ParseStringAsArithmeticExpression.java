@@ -2,19 +2,29 @@ package com.calculator.parse;
 
 import com.calculator.dto.DtoParsedExpression;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
+// Класс распознаёт полученную строку, в которой содержится
+// арифметическое выражение и записывает его в обратной польской
+// нотации. Возвращает объект DtoParsedExpression.
+// Предполагается что выражение не содержит ошибок.
+// При ошибке бросает IllegalArgumentException.
 public class ParseStringAsArithmeticExpression implements Parse {
+
+    private final Map<Integer, BigDecimal> digits = new HashMap<>();
+    private final Map<Integer, Character> operators = new HashMap<>();
+    private final LinkedList<Character> stack = new LinkedList<>();
+    private int counter = 0;
+
 
     @Override
     public DtoParsedExpression parse(String inputString) {
-        Map<Integer, Double> digits = new HashMap<>();
-        Map<Integer, Character> operators = new HashMap<>();
-        LinkedList<Character> stack = new LinkedList<>();
-
         //вспомогательные переменные
         char c;
-        int counter = 0;
 
         //accumulator for digit
         StringBuilder digitAsString = new StringBuilder();
@@ -26,28 +36,24 @@ public class ParseStringAsArithmeticExpression implements Parse {
             if (Character.isDigit(c) || c == '.') {
                 digitAsString.append(c);
             } else {
-                while (stack.size()>0
-                        && getPriority(stack.getLast()) >= getPriority(c)){
+                while (stack.size() > 0
+                        && getPriority(stack.getLast()) >= getPriority(c)) {
                     operators.put(counter++, stack.removeLast());
                 }
                 stack.add(c);
             }
+
             // если символ последний, или после него символ оператора
             // содержимое аккумулятора переводим в число и заносим его в Map'у
             // обнуляем аккумулятор
             if (i == j - 1 || (!Character.isDigit(inputString.charAt(i + 1)))
-                    && inputString.charAt(i + 1) !='.') {
-                digits.put(counter++, Double.parseDouble(digitAsString.toString()));
+                    && inputString.charAt(i + 1) != '.') {
+                digits.put(counter++, new BigDecimal(Double.parseDouble(digitAsString.toString()),
+                        MathContext.DECIMAL32));
                 digitAsString.delete(0, digitAsString.length());
             }
-            // если выражение закончено и стек не пустой
-            // "Выдавливаем содержимое стека в выходную строку
-            if (i==j-1 && stack.size()>0){
-                while (stack.size()>0){
-                    operators.put(counter++, stack.removeLast());
-                }
-            }
         }
+        moveStackToExpressionAfterBaseParse();
         return new DtoParsedExpression(digits, operators);
     }
 
@@ -69,5 +75,15 @@ public class ParseStringAsArithmeticExpression implements Parse {
                 throw new IllegalArgumentException("Неизвестный оператор");
         }
         return priority;
+    }
+
+    // если выражение закончено и стек не пустой
+    // "Выдавливаем содержимое стека в выходную строку
+    private void moveStackToExpressionAfterBaseParse() {
+        if (stack.size() > 0) {
+            while (stack.size() > 0) {
+                operators.put(counter++, stack.removeLast());
+            }
+        }
     }
 }
