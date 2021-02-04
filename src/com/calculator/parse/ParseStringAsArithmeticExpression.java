@@ -78,7 +78,7 @@ public class ParseStringAsArithmeticExpression implements Parse {
     }
 
     // если выражение закончено и стек не пустой
-    // "Выдавливаем содержимое стека в выходную строку
+    // "Выдавливаем" содержимое стека в выходную строку
     private void moveStackToExpressionAfterBaseParse() {
         if (stack.size() > 0) {
             while (stack.size() > 0) {
