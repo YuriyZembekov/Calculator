@@ -1,7 +1,5 @@
 package com.calculator.verification;
 
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +20,6 @@ public class ComplexVerifier implements Verifier {
         //Заменяем конструкцию вида "(-4)" на "1" - убираем таким образом все отрицательные
         //числа чтобы не мешали при проверках.
         this.expression=expression.replaceAll("\\(-\\d+(\\.\\d+)?\\)", "1");
-        System.out.println(this.expression);
         return isContainsOnlyValidSymbol()
                 && isNotContainsDoubleOperatorsWithoutHooks()
                 && isStartsAndEndsWithDigitsOrHooksAndContainsOneOperator()

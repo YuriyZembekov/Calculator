@@ -3,8 +3,8 @@ package com.calculator.dto;
 import java.math.BigDecimal;
 import java.util.Map;
 
-// Класс DTO необходим для передачи данных классом ParseStringAsArithmeticExpression
-// в класс SimpleCalculate
+// Класс DTO необходим для передачи данных классом, реализующим интерфейс Parse
+// в реализацию интерфейса Calculate
 public class DtoParsedExpression {
     private final Map<Integer, BigDecimal> digits;
     private final Map<Integer, Character> operators;
